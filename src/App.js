@@ -9,7 +9,21 @@ const initialState = {
 };
 
 function reducer(state, action) {
-  return state;
+  switch (action.type) {
+    case 'dataReceived':
+      return {
+        ...state,
+        questions: action.payload,
+        status: 'ready',
+      };
+    case 'dateFailed':
+      return {
+        ...state,
+        status: 'error',
+      };
+    default:
+      throw new Error('Action unknown');
+  }
 }
 
 function App() {
@@ -18,8 +32,13 @@ function App() {
   useEffect(() => {
     fetch('http://localhost:8000/questions')
       .then((res) => res.json())
-      .then((data) => console.log(data))
-      .catch((err) => console.error('Error'));
+      .then((data) =>
+        dispatch({
+          type: 'dataReceived',
+          payload: data,
+        })
+      )
+      .catch((err) => dispatch({ type: 'dateFailed' }));
   }, []);
 
   return (
